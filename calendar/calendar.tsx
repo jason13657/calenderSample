@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { getCalendarDates, getWeeklyDates } from "./logic";
+import { getCalendarDates } from "./logic";
 import { FlatList, Pressable, SafeAreaView, Text, View } from "react-native";
 import { CalendarDate } from "./type";
 
@@ -11,7 +11,7 @@ export default function Calendar() {
   const [markedDates, setMarkedDates] = useState<string[]>(["2024-01-24", "2024-03-24"]);
   const [selectedDate, setSelectedDate] = useState<string>("2024-01-23");
 
-  const renderDate = ({ date }: CalendarDate) => {
+  const renderDate = ({ date, isDot, isCurrent }: CalendarDate) => {
     let marked = false;
     let selected = false;
 
@@ -36,6 +36,7 @@ export default function Calendar() {
             { borderWidth: 1.3, borderRadius: 4, margin: 1, padding: 2, borderColor: "black", width: 50, alignItems: "center" },
             marked ? { backgroundColor: "yellow" } : {},
             selected ? { backgroundColor: "blue" } : {},
+            isCurrent ? {} : { opacity: 0.3 },
           ]}
         >
           <Text>{date.slice(8)}</Text>
@@ -113,7 +114,7 @@ export default function Calendar() {
           renderItem={({ item }) => renderDay(item)}
           contentContainerStyle={{ flexDirection: "row", justifyContent: "center", marginBottom: 6 }}
         />
-        <FlatList data={getWeeklyDates(getCalendarDates(year, month))} renderItem={({ item }) => renderWeek(item)} style={{}} />
+        <FlatList data={getCalendarDates(year, month)} renderItem={({ item }) => renderWeek(item)} style={{}} />
       </View>
     </SafeAreaView>
   );

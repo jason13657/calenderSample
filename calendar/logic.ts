@@ -1,66 +1,68 @@
 import { CalendarDate } from "./type";
 
-export const getMonthDates = (year: number, month: number): CalendarDate[] => {
-  const dates: CalendarDate[] = [];
-  const startDate = new Date(year, month);
-  startDate.setDate(startDate.getDate() + 1);
-  const endDate = new Date(year, month + 1);
+export const getCalendarDates = (year: number, _month: number): CalendarDate[][] => {
+  const month = _month + 1;
 
-  while (startDate <= endDate) {
+  const dates: CalendarDate[] = [];
+  const lastDate = new Date(year, month, 0);
+  const firstDate = new Date(year, month - 1);
+  const monthStr = month < 10 ? `0${month}` : `${month}`;
+
+  let finalDate = 0;
+
+  for (let i = 1; i < lastDate.getDate() + 1; i++) {
+    const str = `${year}-${monthStr}-${i}`;
     const date: CalendarDate = {
-      date: startDate.toISOString().split("T")[0],
-      isDot: false,
+      date: str,
       isCurrent: true,
     };
     dates.push(date);
-    startDate.setDate(startDate.getDate() + 1);
   }
 
-  return dates;
-};
+  const lastday = lastDate.getDay();
 
-export const setEmptyDates = (dates: CalendarDate[]): CalendarDate[] => {
-  if (dates === undefined) {
-    return dates;
-  }
+  const nextMonthStr = month + 1 < 10 ? `0${month + 1}` : `${month + 1}`;
 
-  let newDates: CalendarDate[] = dates;
-
-  const firstDay = new Date(dates[0].date).getDay();
-  for (let i = 1; i <= firstDay; i++) {
-    const firstDate = new Date(dates[0].date);
-    firstDate.setDate(firstDate.getDate() - i);
-    const newDate: CalendarDate = {
-      date: firstDate.toISOString().split("T")[0],
-      isDot: false,
+  for (let i = 1; i < 7 - lastday; i++) {
+    const str = `${year}-${nextMonthStr}-${i}`;
+    const date: CalendarDate = {
+      date: str,
       isCurrent: false,
     };
-    newDates = [newDate, ...newDates];
+    if (i === 6 - lastday) {
+      finalDate = i;
+    }
+    dates.push(date);
   }
 
-  const lastDay = new Date(dates[dates.length - 1].date).getDay();
+  const lastMonthStr = month - 1 === 0 ? `12` : month - 1 < 10 ? `0${month - 1}` : `${month - 1}`;
 
-  for (let i = 0 + 1; i < 7 - lastDay; i++) {
-    const lastDate = new Date(dates[dates.length - 1].date);
-    lastDate.setDate(lastDate.getDate() + i);
-    const newDate: CalendarDate = {
-      date: lastDate.toISOString().split("T")[0],
-      isDot: false,
+  const firstDay = firstDate.getDay();
+  const lastMonthDate = new Date(year, month - 1, 0).getDate();
+
+  for (let i = 0; i < firstDay; i++) {
+    const str = `${year}-${lastMonthStr}-${lastMonthDate - i}`;
+    const date: CalendarDate = {
+      date: str,
       isCurrent: false,
     };
-    newDates = [...newDates, newDate];
+
+    dates.unshift(date);
   }
 
-  return newDates;
-};
-
-export const getCalendarDates = (year: number, month: number): CalendarDate[] => {
-  return setEmptyDates(getMonthDates(year, month));
-};
-
-export const getWeeklyDates = (dates: CalendarDate[]) => {
   const weeks: CalendarDate[][] = [];
   let week: CalendarDate[] = [];
+
+  if (dates.length / 7 === 5) {
+    for (let i = 1; i <= 7; i++) {
+      const str = `${year}-${nextMonthStr}-${finalDate + i}`;
+      const date: CalendarDate = {
+        date: str,
+        isCurrent: false,
+      };
+      dates.push(date);
+    }
+  }
 
   dates.forEach((date, index) => {
     week.push(date);
